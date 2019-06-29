@@ -5,6 +5,9 @@ import java.io.FileFilter;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,7 +19,7 @@ public class MyReadXMLWithDOM {
 
     //private static int fileProcessed = 0;
 
-    public static void main( String[] args ) throws IOException
+    public static void main( String[] args ) throws Exception
     {
         String rootPath = "D:\\work\\02-03.workspace-idea\\ReadXML";
 
@@ -54,7 +57,7 @@ public class MyReadXMLWithDOM {
         System.out.println(info);
     }
 
-    private static int processFiles(String rootPath) throws IOException{
+    private static int processFiles(String rootPath) throws Exception{
         int count = 0;
         String defaultFileName = "output.csv";
 
@@ -111,9 +114,25 @@ public class MyReadXMLWithDOM {
 //        getAllStudents(doc);
 //        getGraduatedStudents(doc, "graduated", "yes");
 //        parseWholeXML(doc.getDocumentElement());
+        System.out.println("processing file:" + filename);
 
         //1、<test-record>\<header>\<serial-number>，取第12位开始的10位
-        //2、取得<features>下每一个<feature>下的<actual-value>
+        NodeList headerNodes = doc.getElementsByTagName("header");
+        if (headerNodes.getLength()<1) {
+            System.out.println("Can't find node:[header]");
+            return;
+        }
+        Node headerNode = headerNodes.item(0);
+        if (headerNode.getNodeType() != Node.ELEMENT_NODE) {
+            System.out.println("[Header] is not a element node");
+            return;
+        }
+
+        Element headerElement = (Element) headerNode;
+        String serial_number = headerElement.getElementsByTagName("serial-number>").item(0).getTextContent();
+        System.out.println("serial-number is:" + serial_number);
+
+        //2、取得<test-record>\<features>下每一个<feature>下的<actual-value>
     }
 
 
