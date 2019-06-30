@@ -21,7 +21,8 @@ public class MyReadXMLWithDOM {
 
     public static void main( String[] args ) throws Exception
     {
-        String rootPath = "D:\\work\\02-03.workspace-idea\\ReadXML";
+        //String rootPath = "D:\\work\\02-03.workspace-idea\\ReadXML";
+        String rootPath ="C:\\Users\\RAVEN_V01\\Downloads\\data\\data\\24";
 
         if (args.length>0 && StringUtils.isNotBlank(args[0])) {
             rootPath = args[0];
@@ -50,7 +51,7 @@ public class MyReadXMLWithDOM {
 
         String info = String.format("====ALL DONE===\n"
                         +"====time elapsed: %d hours, %d minutes, %d secondes。\n"
-                        +"====folder processed: %d.",
+                        +"====file processed: %d.",
                 hour, minute, second,
                 fileProcessed);
 
@@ -96,7 +97,7 @@ public class MyReadXMLWithDOM {
             }
             //如果是文件
             else {
-                processFile(sourcefile.getName(), outputFile);
+                processFile(sourcefile.getAbsolutePath(), outputFile);
                 count++;
             }
         }
@@ -110,11 +111,7 @@ public class MyReadXMLWithDOM {
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document doc = builder.parse(xmlFile);
 
-//        getStudentById(doc,"id", "2");
-//        getAllStudents(doc);
-//        getGraduatedStudents(doc, "graduated", "yes");
-//        parseWholeXML(doc.getDocumentElement());
-        System.out.println("processing file:" + filename);
+        System.out.println("processing file: " + filename);
 
         //1、<test-record>\<header>\<serial-number>，取第12位开始的10位
         NodeList headerNodes = doc.getElementsByTagName("header");
@@ -128,11 +125,51 @@ public class MyReadXMLWithDOM {
             return;
         }
 
-        Element headerElement = (Element) headerNode;
-        String serial_number = headerElement.getElementsByTagName("serial-number>").item(0).getTextContent();
-        System.out.println("serial-number is:" + serial_number);
+        //Element headerElement = (Element) headerNode;
+        NodeList snNodes = ((Element) headerNode).getElementsByTagName("serial-number");
+        if (snNodes.getLength() < 1) {
+            System.out.println("Can't find element: [serial-number");
+            return;
+        }
+        String serialNumber = snNodes.item(0).getTextContent();
+        System.out.println("serial-number is:" + serialNumber);
+        //取第12位开始的10位
+        String trimmedSn = serialNumber.substring(11,21);
+        System.out.println("trimed serial-number is:" + trimmedSn);
 
         //2、取得<test-record>\<features>下每一个<feature>下的<actual-value>
+        NodeList featuresNodes = doc.getElementsByTagName("features");
+        if (featuresNodes.getLength()<1) {
+            System.out.println("Can't find node:[features]");
+            return;
+        }
+
+        NodeList featureNodes = featuresNodes.item(0).getChildNodes();
+        if (featureNodes.getLength()<1) {
+            System.out.println("Can't find node:[feature]");
+            return;
+        }
+        //System.out.println("1."+featureNodes.item(0).getNodeName());
+
+        for (int i=0; i<featureNodes.getLength(); i++) {
+            Node featureNode = featureNodes.item(i);
+            if (featureNode.getNodeType() != Node.ELEMENT_NODE) {
+                //System.out.println("[feature] is not a element node");
+                //return;
+                continue;
+            }
+
+            NodeList actualValueNodes = ((Element) featureNode).getElementsByTagName("actual-value");
+            if (actualValueNodes.getLength() < 1) {
+                System.out.println("Can't find element: [actual-value]");
+                return;
+            }
+
+            String actualValue = actualValueNodes.item(0).getTextContent();
+            System.out.print(actualValue+"\t");
+        }
+        System.out.println("\n");
+
     }
 
 
